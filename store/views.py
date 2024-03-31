@@ -8,11 +8,12 @@ from rest_framework.generics import CreateAPIView , ListCreateAPIView , ListAPIV
 from rest_framework.mixins import RetrieveModelMixin , CreateModelMixin , DestroyModelMixin
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated , IsAdminUser
+from rest_framework.permissions import IsAuthenticated , IsAdminUser , AllowAny
 
 
 from .models import Book , Category ,Comment , Cart , CartItem , Customer , Order , OrderItem
-from .serializers import BookSerializer , CategorySerializer , CommentSerializer ,CartSerializer , CartItemSerializer , AddCartItemSerializer , UpdateItemCartSerializer , CustomerSerializer , OrderSerializer , OrderForAdminSerializer , OrderCreateSerializer
+from .serializers import BookSerializer , CategorySerializer , CommentSerializer ,CartSerializer , CartItemSerializer , AddCartItemSerializer , UpdateItemCartSerializer , CustomerSerializer , OrderSerializer , OrderForAdminSerializer , OrderCreateSerializer , OrderUpdateSerializer
+from .permissions import SendPrivateEmailToCustomerPermission
 
 # Create your views here.
 
@@ -87,7 +88,7 @@ class CustomerViewSet(ModelViewSet):
     serializer_class = CustomerSerializer
     permission_classes = [IsAdminUser , ]
 
-    @action(detail=False)
+    @action(detail=False, methods=['GET' , 'PUT'] , permission_classes=[IsAuthenticated,])
     def me(self , request):
         user_id = request.user.id
         customer = Customer.objects.get(user__id = user_id)
@@ -100,6 +101,12 @@ class CustomerViewSet(ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(data = serializer.data)
+
+
+    @action(detail=True , permission_classes=[SendPrivateEmailToCustomerPermission,])
+    def send_private_email(self , request , pk):
+        return Response(f'sending private email : {pk=}')
+
 
 
 
@@ -147,3 +154,5 @@ class OrderViewSet(ModelViewSet):
 
         serializer = OrderSerializer(created_order)
         return Response(data = serializer.data)
+
+

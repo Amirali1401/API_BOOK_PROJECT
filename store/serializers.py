@@ -16,7 +16,7 @@ class BookSerializer(serializers.ModelSerializer):
     price = serializers.DecimalField(max_digits=6, decimal_places=2, source='unit_price')
     class Meta:
         model = Book
-        fields = ['id', 'name' , 'description' , 'inventory' ,'category' , 'price' ]
+        fields = ['id', 'name' , 'description' , 'unit_price_after_tax', 'inventory' ,'image','category' , 'price' ]
 
 
 
@@ -67,7 +67,7 @@ class CartBookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fields =['id' , 'name' , 'unit_price']
+        fields =['id' , 'name' , 'unit_price' , 'unit_price_after_tax']
 
 
 
